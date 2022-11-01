@@ -19,7 +19,7 @@
 	"author": "",
 	"license": "ISC",
 	"bugs": {
-		"url": "https://github.com/MomoRazor/firebase-gatewayissues"
+		"url": "https://github.com/MomoRazor/firebase-gateway/issues"
 	},
 	"homepage": "https://github.com/MomoRazor/firebase-gateway#readme",
 	"devDependencies": {
