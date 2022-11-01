@@ -1,0 +1,20 @@
+{
+	"name": "Firebase Gateway",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
+	"workspaceFolder": "/workspace",
+
+	"settings": {
+		"terminal.integrated.shell.linux": "/bin/bash"
+	},
+
+	"extensions": [
+		"dbaeumer.vscode-eslint",
+		"visualstudioexptteam.vscodeintellicode",
+		"ms-azuretools.vscode-docker",
+		"esbenp.prettier-vscode",
+		"ms-vscode.vscode-typescript-next"
+	],
+
+	"remoteUser": "node"
+}
