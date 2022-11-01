@@ -9,7 +9,6 @@ import Axios from 'axios'
 import { ProxySvc } from './svc/ProxySvc'
 import { ProxyApi } from './api/ProxyApi'
 import cors from 'cors'
-import { UserRepo } from './data/UserRepo'
 import { UserApi } from './api/UserApi'
 import { UserSvc } from './svc/UserSvc'
 import { ServiceRepo } from './data/ServiceRepo'
@@ -29,13 +28,12 @@ const main = async () => {
 	const axios = Axios.create({})
 
 	// Init repositories
-	const userRepo = await UserRepo(databaseConnection)
 	const serviceRepo = await ServiceRepo(databaseConnection)
 
 	// Init services
 	const authSvc = AuthSvc(firebaseAuthentication)
 	const proxySvc = ProxySvc(serviceRepo, axios)
-	const userSvc = UserSvc(userRepo, firebaseAuthentication)
+	const userSvc = UserSvc(firebaseAuthentication)
 
 	// Init web server
 	const app = express()

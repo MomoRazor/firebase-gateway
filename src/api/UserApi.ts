@@ -51,32 +51,6 @@ export const UserApi = (app: Application, userService: IUserSvc) => {
 
 	app.post(`${prefix}/get/user`, async (req, res) => {
 		try {
-			const { id } = req.body
-
-			if (!id) {
-				return res.status(400).json({
-					data: null,
-					errors: ['Missing Id!'],
-				})
-			}
-
-			const user = await userService.getById(id)
-
-			return res.status(200).json({
-				data: user,
-				errors: [],
-			})
-		} catch (e: any) {
-			console.error(e)
-			return res.status(500).json({
-				data: null,
-				errors: [e.message],
-			})
-		}
-	})
-
-	app.post(`${prefix}/get/user/uid`, async (req, res) => {
-		try {
 			const { uid } = req.body
 
 			if (!uid) {
