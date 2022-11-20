@@ -26,3 +26,15 @@ export const MONGO_URL = process.env.MONGO_URL
 if (!process.env.PORT) throw new Error(`Missing environment variable PORT!`)
 
 export const PORT = process.env.PORT
+
+export const LOCAL = process.env.LOCAL === 'true' ? true : false
+
+if (!process.env.JWT_SECRET)
+	throw new Error(`Missing environment variable JWT_SECRET!`)
+
+export const JWT_SECRET = process.env.JWT_SECRET
+
+if (!process.env.APP_ENV)
+	throw new Error(`Missing environment variable APP_ENV!`)
+
+export const APP_ENV = process.env.APP_ENV

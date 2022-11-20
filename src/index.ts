@@ -3,15 +3,23 @@ import morgan from 'morgan'
 import admin from 'firebase-admin'
 import { FIREBASE_SERVICE_ACCOUNT, MONGO_URL, PORT } from './env'
 import mongoose from 'mongoose'
+import { UserRepo } from './data/UserRepo'
 import { AuthSvc } from './svc/AuthSvc'
 import { AuthApi } from './api/AuthApi'
+import { RbacSvc } from './svc/RbacSvc'
+import { RbacApi } from './api/RbacApi'
+import { PermissionRepo } from './data/PermissionRepo'
+import { RoleRepo } from './data/RoleRepo'
+import { Mache } from './cache'
 import Axios from 'axios'
+import { ServiceRepo } from './data/ServiceRepo'
 import { ProxySvc } from './svc/ProxySvc'
 import { ProxyApi } from './api/ProxyApi'
-import cors from 'cors'
-import { UserApi } from './api/UserApi'
 import { UserSvc } from './svc/UserSvc'
-import { ServiceRepo } from './data/ServiceRepo'
+import { UserApi } from './api/UserApi'
+import cors from 'cors'
+import { PageRepo } from './data/PageRepo'
+import { SetupApi } from './api/SetupApi'
 
 const main = async () => {
 	// Init firebase auth
@@ -24,16 +32,36 @@ const main = async () => {
 	// Init database
 	const databaseConnection = mongoose.createConnection(MONGO_URL)
 
+	// Init cache
+	const cache = new Mache()
+
 	// Init HTTP Client
 	const axios = Axios.create({})
 
+	const firestore = await admin.firestore()
+
+	const prefix = '/wapo'
+	const authServicePerfix = `${prefix}/auth`
+
 	// Init repositories
+	const userRepo = await UserRepo(databaseConnection)
+	const permissionRepo = await PermissionRepo(databaseConnection)
+	const roleRepo = await RoleRepo(databaseConnection)
 	const serviceRepo = await ServiceRepo(databaseConnection)
+	const pageRepo = await PageRepo(databaseConnection)
 
 	// Init services
 	const authSvc = AuthSvc(firebaseAuthentication)
-	const proxySvc = ProxySvc(serviceRepo, axios)
-	const userSvc = UserSvc(firebaseAuthentication)
+	const rbacSvc = RbacSvc(
+		userRepo,
+		roleRepo,
+		permissionRepo,
+		pageRepo,
+		firestore,
+		cache
+	)
+	const proxySvc = ProxySvc(serviceRepo, axios, cache)
+	const userSvc = UserSvc(userRepo, firebaseAuthentication)
 
 	// Init web server
 	const app = express()
@@ -41,14 +69,20 @@ const main = async () => {
 	app.use(cors())
 	app.use(morgan('dev'))
 
-	// Init routes
+	// Init setup routes
+	SetupApi(app, roleRepo, pageRepo, permissionRepo, serviceRepo, prefix)
+
+	// Init Auth and RBAC
 	AuthApi(app, authSvc)
-	UserApi(app, userSvc)
-	ProxyApi(app, proxySvc)
+	RbacApi(app, rbacSvc, prefix)
+
+	// Init routes
+	UserApi(app, userSvc, authServicePerfix)
+	ProxyApi(app, proxySvc, prefix)
 
 	// Start application
 	app.listen(PORT, () => {
-		console.log(`Firebase Gateway Initialised!`)
+		console.log(`Firebase Gateway Initialised! - ${PORT}`)
 		console.log(`========================`)
 	})
 }

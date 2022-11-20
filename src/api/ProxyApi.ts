@@ -1,29 +1,29 @@
 import { Application } from 'express'
 import { IProxySvc } from '../svc/ProxySvc'
 
-export const ProxyApi = (app: Application, proxySvc: IProxySvc) => {
-	app.use(`/api/v1/:service`, async (req, res, next) => {
-		if (req.method.toUpperCase() !== 'POST') {
-			return next()
-		}
-
-		if (!res.locals.uid) {
+export const ProxyApi = (
+	app: Application,
+	proxySvc: IProxySvc,
+	prefix: string
+) => {
+	app.use(`${prefix}/:service`, async (req, res) => {
+		if (!res.locals.userData?.uid) {
 			return res.status(401).json({
 				data: null,
 				errors: ['Uid is missing!'],
 			})
 		}
 
-		const { body, method, query } = req
+		const { body, method } = req
 
-		const { uid } = res.locals
+		const { userData } = res.locals
 
 		const { service } = req.params
 
-		const endpoint = req.originalUrl.replace(`/api/v1/${service}`, '')
+		const endpoint = req.originalUrl.replace(`${prefix}/${service}`, '')
 
 		console.log(`body:`, body)
-		console.log(`uid:`, uid)
+		console.log(`user data:`, userData)
 		console.log(`service:`, service)
 		console.log(`endpoint:`, endpoint)
 
@@ -32,15 +32,11 @@ export const ProxyApi = (app: Application, proxySvc: IProxySvc) => {
 				service,
 				endpoint,
 				method.toUpperCase(),
-				uid,
-				body,
-				query
+				userData,
+				body
 			)
 
-			return res.json({
-				data: result.data,
-				errors: [],
-			})
+			return res.json(result.data)
 		} catch (e: any) {
 			if (e.response?.data) {
 				console.warn(e.response.data)

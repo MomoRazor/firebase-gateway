@@ -1,5 +1,9 @@
-import { AxiosInstance } from 'axios'
+import { AxiosInstance, AxiosRequestConfig } from 'axios'
+import { Mache } from '../cache'
 import { IServiceRepo } from '../data/ServiceRepo'
+import { JWT_SECRET, LOCAL } from '../env'
+import { sign } from 'jsonwebtoken'
+import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
 
 // Build test
 
@@ -8,39 +12,57 @@ export interface IProxySvc {
 		service: string,
 		endpoint: string,
 		method: string,
-		uid: string,
-		data: object | undefined,
-		params: object | undefined
+		userData: DecodedIdToken,
+		body: object | undefined
 	) => Promise<any>
 }
 
 export const ProxySvc = (
 	serviceRepo: IServiceRepo,
-	axios: AxiosInstance
+	axios: AxiosInstance,
+	cache: Mache
 ): IProxySvc => {
+	// Listeners
+	if (!LOCAL) {
+		serviceRepo.watch().on(`change`, () => {
+			cache.invalidate(`proxyMap`)
+		})
+	}
+
 	const getServiceUrl = async (serviceName: string) => {
-		const services = await serviceRepo.find({ enabled: true }, 'name url')
+		let proxyCache: { [name: string]: string } | undefined =
+			cache.get('proxyMap')
 
-		const serviceMap: { [name: string]: string } = {}
+		if (!proxyCache) {
+			const services = await serviceRepo.find(
+				{ enabled: true },
+				'name url'
+			)
 
-		for (const service of services) {
-			serviceMap[service.name] = service.url
+			const serviceMap: { [name: string]: string } = {}
+
+			for (const service of services) {
+				serviceMap[service.name] = service.url
+			}
+
+			cache.set('proxyMap', serviceMap)
+
+			proxyCache = cache.get('proxyMap')
 		}
 
-		if (!serviceMap) return undefined
-		if (!serviceMap[serviceName]) return undefined
-		return serviceMap[serviceName]
+		if (!proxyCache) return undefined
+		if (!proxyCache[serviceName]) return undefined
+		return proxyCache[serviceName]
 	}
 
 	const proxyRequest = async (
 		service: string,
 		endpoint: string,
 		method: string,
-		uid: string,
-		data: object | undefined,
-		params: object | undefined
+		userData: DecodedIdToken,
+		body: object | undefined
 	) => {
-		if ([`GET`, `POST`, `DELETE`, `PUT`, `PATCH`].includes(method)) {
+		if (![`GET`, `POST`, `DELETE`, `PUT`, `PATCH`].includes(method)) {
 			throw new Error(`Invalid method ${method}!`)
 		}
 
@@ -58,15 +80,21 @@ export const ProxySvc = (
 			endpoint = '/' + endpoint
 		}
 
-		const result = await axios.request({
+		const fullUrl = `${url}${endpoint}`
+
+		let request: AxiosRequestConfig = {
 			method,
-			url: `${url}${endpoint}`,
-			data,
-			params,
+			url: fullUrl,
 			headers: {
-				'x-uid': uid,
+				'x-token': sign(userData, JWT_SECRET),
 			},
-		})
+		}
+
+		if (method !== `GET`) {
+			request.data = body
+		}
+
+		const result = await axios.request(request)
 
 		return result
 	}

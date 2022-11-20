@@ -1,63 +1,153 @@
+import { IUserRepo, User } from '../data/UserRepo'
 import { Auth } from 'firebase-admin/lib/auth/auth'
-import { UserRecord, UserInfo } from 'firebase-admin/auth'
+import { CreateRequest } from 'firebase-admin/lib/auth/auth-config'
+import { createHash } from 'crypto'
 
 export interface IUserSvc {
-	getByUid: (uid: string) => Promise<UserRecord>
-	update: (userId: string, data: Partial<UserInfo>) => Promise<UserRecord>
-	create: (data: UserInfo) => Promise<UserRecord>
-	deleteOne: (userId: string) => Promise<void>
-	blockOne: (userId: string) => Promise<void>
-	unblockOne: (userId: string) => Promise<void>
+	create: (userData: User & CreateRequest, byUid?: string) => Promise<User>
+	update: (
+		userData: Partial<User & CreateRequest>,
+		byUid?: string
+	) => Promise<User>
+	deleteOne: (userId: string, byUid?: string) => Promise<void>
+	blockOne: (userId: string, byUid?: string) => Promise<void>
+	unblockOne: (userId: string, byUid?: string) => Promise<void>
 }
 
-export const UserSvc = (firebaseAuth: Auth): IUserSvc => {
-	const getByUid = async (uid: string) => {
-		const user = await firebaseAuth.getUser(uid)
-
-		if (!user) {
-			throw new Error('Could not find User')
+export const UserSvc = (userRepo: IUserRepo, firebaseAuth: Auth): IUserSvc => {
+	const create = async (userData: User & CreateRequest) => {
+		const userInformation = {
+			...userData,
+			password:
+				userData.password ||
+				createHash('sha256')
+					.update(Date.now().toString() + 'hard-coded-salt')
+					.digest('hex')
+					.substring(0, 8),
+			disabled: false,
 		}
 
-		return user
-	}
+		if (!userInformation.email) {
+			throw new Error(`Email is required!`)
+		}
 
-	const update = async (userId: string, data: Partial<UserInfo>) => {
-		const user = await firebaseAuth.updateUser(userId, data)
+		if (!userInformation.displayName) {
+			throw new Error(`Display name is required!`)
+		}
 
-		return user
-	}
-
-	const create = async (data: UserInfo, passedPassword?: string) => {
-		//TODO password needs generating
-		const password = passedPassword || '000000'
-
-		const user = await firebaseAuth.createUser({
-			...data,
-			password,
+		const firebaseUser = await firebaseAuth.createUser({
+			...userInformation,
 		})
 
-		return user
+		try {
+			const user = await userRepo.create({
+				...firebaseUser,
+				...userInformation,
+			})
+
+			if (!user) {
+				throw new Error('User was not created!')
+			}
+
+			const aggregatedUserInformation = {
+				...firebaseUser,
+				...user.toObject(),
+			}
+
+			// TODO: STRICTLY REMOVE BEFORE GOING TO PRODUCTION
+			console.log(
+				new Date().toISOString(),
+				userInformation.uid,
+				userInformation.password
+			)
+
+			return aggregatedUserInformation
+		} catch (e) {
+			console.warn(e)
+
+			await firebaseAuth.deleteUser(firebaseUser.uid)
+			throw new Error(`Failed to create user ${firebaseUser.uid}!`)
+		}
 	}
 
-	const blockOne = async (userId: string) => {
-		await firebaseAuth.updateUser(userId, {
+	const update = async (userData: Partial<User & CreateRequest>) => {
+		const { uid } = userData
+
+		if (!uid) {
+			throw new Error(`UID is required!`)
+		}
+
+		let user = await userRepo.findOne({ uid })
+
+		if (!user) {
+			throw new Error(`Could not find User with uid ${uid}`)
+		}
+
+		const firebaseUser = await firebaseAuth.updateUser(uid, userData)
+
+		// TODO: Update if adding new user fields
+		if (userData.roleNames) {
+			user = await userRepo.findOneAndUpdate(
+				{ uid },
+				{
+					$set: {
+						roleNames: userData.roleNames,
+					},
+				},
+				{ new: true }
+			)
+		}
+
+		if (!user) {
+			throw new Error(`Could not find User with uid ${uid}`)
+		}
+
+		const aggregatedUserInformation = {
+			...firebaseUser,
+			...user.toObject(),
+		}
+
+		return aggregatedUserInformation
+	}
+
+	const blockOne = async (uid: string) => {
+		const currentUser = await userRepo.findOne({ uid }).lean()
+
+		if (!currentUser) {
+			throw new Error(`Could not find User with uid ${uid}!`)
+		}
+
+		await firebaseAuth.updateUser(currentUser.uid, {
 			disabled: true,
 		})
 	}
 
-	const unblockOne = async (userId: string) => {
-		await firebaseAuth.updateUser(userId, {
+	const unblockOne = async (uid: string) => {
+		const currentUser = await userRepo.findOne({ uid }).lean()
+
+		if (!currentUser) {
+			throw new Error(`Could not find User with uid ${uid}!`)
+		}
+
+		await firebaseAuth.updateUser(currentUser.uid, {
 			disabled: false,
 		})
 	}
 
-	const deleteOne = async (userId: string) => {
-		await firebaseAuth.deleteUser(userId)
+	const deleteOne = async (uid: string) => {
+		const currentUser = await userRepo.findOne({ uid }).lean()
+
+		if (!currentUser) {
+			throw new Error(`Could not find User with uid ${uid}!`)
+		}
+
+		await firebaseAuth.deleteUser(currentUser.uid)
+
+		await userRepo.findOneAndDelete({ uid })
 	}
 
 	return {
 		deleteOne,
-		getByUid,
 		update,
 		create,
 		blockOne,

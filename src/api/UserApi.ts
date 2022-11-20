@@ -1,14 +1,19 @@
 import { Application } from 'express'
 import { IUserSvc } from '../svc/UserSvc'
 
-const prefix = '/api/v1/auth'
-
-export const UserApi = (app: Application, userService: IUserSvc) => {
-	app.post(`${prefix}/create/user`, async (req, res) => {
+export const UserApi = (
+	app: Application,
+	userService: IUserSvc,
+	prefix: string
+) => {
+	app.post(`${prefix}/create/users`, async (req, res) => {
 		try {
-			const body = req.body
+			const { body } = req
 
-			const newUser = await userService.create(body)
+			const newUser = await userService.create(
+				body,
+				res.locals.userData?.uid
+			)
 
 			return res.status(200).json({
 				data: newUser,
@@ -23,18 +28,12 @@ export const UserApi = (app: Application, userService: IUserSvc) => {
 		}
 	})
 
-	app.post(`${prefix}/update/user`, async (req, res) => {
+	app.post(`${prefix}/update/users`, async (req, res) => {
 		try {
-			const { id, ...body } = req.body
-
-			if (!id) {
-				return res.status(400).json({
-					data: null,
-					errors: ['Missing Id'],
-				})
-			}
-
-			const newUser = await userService.update(id, body)
+			const newUser = await userService.update(
+				req.body,
+				res.locals.userData?.uid
+			)
 
 			return res.status(200).json({
 				data: newUser,
@@ -49,18 +48,21 @@ export const UserApi = (app: Application, userService: IUserSvc) => {
 		}
 	})
 
-	app.post(`${prefix}/get/user`, async (req, res) => {
+	app.post(`${prefix}/delete/users`, async (req, res) => {
 		try {
-			const { uid } = req.body
+			const { id } = req.body
 
-			if (!uid) {
+			if (!id) {
 				return res.status(400).json({
 					data: null,
-					errors: ['Missing Uid!'],
+					errors: ['Missing Id!'],
 				})
 			}
 
-			const user = await userService.getByUid(uid)
+			const user = await userService.deleteOne(
+				id,
+				res.locals.userData?.uid
+			)
 
 			return res.status(200).json({
 				data: user,
@@ -75,7 +77,7 @@ export const UserApi = (app: Application, userService: IUserSvc) => {
 		}
 	})
 
-	app.post(`${prefix}/delete/user`, async (req, res) => {
+	app.post(`${prefix}/block/users`, async (req, res) => {
 		try {
 			const { id } = req.body
 
@@ -86,7 +88,10 @@ export const UserApi = (app: Application, userService: IUserSvc) => {
 				})
 			}
 
-			const user = await userService.deleteOne(id)
+			const user = await userService.blockOne(
+				id,
+				res.locals.userData?.uid
+			)
 
 			return res.status(200).json({
 				data: user,
@@ -101,7 +106,7 @@ export const UserApi = (app: Application, userService: IUserSvc) => {
 		}
 	})
 
-	app.post(`${prefix}/block/user`, async (req, res) => {
+	app.post(`${prefix}/unblock/users`, async (req, res) => {
 		try {
 			const { id } = req.body
 
@@ -112,33 +117,10 @@ export const UserApi = (app: Application, userService: IUserSvc) => {
 				})
 			}
 
-			const user = await userService.blockOne(id)
-
-			return res.status(200).json({
-				data: user,
-				errors: [],
-			})
-		} catch (e: any) {
-			console.error(e)
-			return res.status(500).json({
-				data: null,
-				errors: [e.message],
-			})
-		}
-	})
-
-	app.post(`${prefix}/unblock/user`, async (req, res) => {
-		try {
-			const { id } = req.body
-
-			if (!id) {
-				return res.status(400).json({
-					data: null,
-					errors: ['Missing Id!'],
-				})
-			}
-
-			const user = await userService.unblockOne(id)
+			const user = await userService.unblockOne(
+				id,
+				res.locals.userData?.uid
+			)
 
 			return res.status(200).json({
 				data: user,

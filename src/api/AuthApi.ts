@@ -22,7 +22,7 @@ export const AuthApi = (app: Application, authSvc: IAuthSvc) => {
 			})
 		}
 
-		res.locals.uid = user.uid
+		res.locals.userData = user
 
 		return next()
 	})
