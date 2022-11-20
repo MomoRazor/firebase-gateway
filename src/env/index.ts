@@ -34,7 +34,7 @@ if (!process.env.JWT_SECRET)
 
 export const JWT_SECRET = process.env.JWT_SECRET
 
-if (!process.env.APP_ENV)
-	throw new Error(`Missing environment variable APP_ENV!`)
+if (!process.env.PROJECT_ID)
+	throw new Error(`Missing environment variable PROJECT_ID!`)
 
-export const APP_ENV = process.env.APP_ENV
+export const PROJECT_ID = process.env.PROJECT_ID
