@@ -1,6 +1,4 @@
-import { IPermissionRepo } from './data/PermissionRepo'
-import { IPageRepo } from './data/PageRepo'
-import { IRoleRepo } from './data/RoleRepo'
+import { IPageRepo, IPermissionRepo, IRoleRepo } from './data'
 
 export const RBACSetup = async (
 	permissionRepo: IPermissionRepo,

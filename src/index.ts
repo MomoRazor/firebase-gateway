@@ -3,23 +3,18 @@ import morgan from 'morgan'
 import admin from 'firebase-admin'
 import { FIREBASE_SERVICE_ACCOUNT, MONGO_URL, PORT } from './env'
 import mongoose from 'mongoose'
-import { UserRepo } from './data/UserRepo'
-import { AuthSvc } from './svc/AuthSvc'
-import { AuthApi } from './api/AuthApi'
-import { RbacSvc } from './svc/RbacSvc'
-import { RbacApi } from './api/RbacApi'
-import { PermissionRepo } from './data/PermissionRepo'
-import { RoleRepo } from './data/RoleRepo'
 import { Mache } from './cache'
 import Axios from 'axios'
-import { ServiceRepo } from './data/ServiceRepo'
-import { ProxySvc } from './svc/ProxySvc'
-import { ProxyApi } from './api/ProxyApi'
-import { UserSvc } from './svc/UserSvc'
-import { UserApi } from './api/UserApi'
 import cors from 'cors'
-import { PageRepo } from './data/PageRepo'
-import { SetupApi } from './api/SetupApi'
+import { SetupApi, AuthApi, RbacApi, UserApi, ProxyApi } from './api'
+import {
+	UserRepo,
+	PermissionRepo,
+	RoleRepo,
+	ServiceRepo,
+	PageRepo,
+} from './data'
+import { AuthSvc, RbacSvc, ProxySvc, UserSvc } from './svc'
 
 const main = async () => {
 	// Init firebase auth

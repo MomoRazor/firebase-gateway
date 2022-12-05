@@ -1,9 +1,6 @@
 import { Application } from 'express'
-import { IPageRepo } from '../data/PageRepo'
-import { IPermissionRepo } from '../data/PermissionRepo'
-import { IRoleRepo } from '../data/RoleRepo'
-import { IServiceRepo } from '../data/ServiceRepo'
-import { camSetup } from '../projectSpecifics/cam/setup'
+import { IPageRepo, IPermissionRepo, IRoleRepo, IServiceRepo } from '../data'
+import { camSetup } from '../projectSpecifics'
 import { RBACSetup } from '../setup'
 
 export const SetupApi = (

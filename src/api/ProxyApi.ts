@@ -1,5 +1,5 @@
 import { Application } from 'express'
-import { IProxySvc } from '../svc/ProxySvc'
+import { IProxySvc } from '../svc'
 
 export const ProxyApi = (
 	app: Application,

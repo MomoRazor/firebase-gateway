@@ -1,6 +1,6 @@
 import { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { Mache } from '../cache'
-import { IServiceRepo } from '../data/ServiceRepo'
+import { IServiceRepo } from '../data'
 import { JWT_SECRET, LOCAL } from '../env'
 import { sign } from 'jsonwebtoken'
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'

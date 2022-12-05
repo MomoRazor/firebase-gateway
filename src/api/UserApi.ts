@@ -1,5 +1,5 @@
 import { Application } from 'express'
-import { IUserSvc } from '../svc/UserSvc'
+import { IUserSvc } from '../svc'
 
 export const UserApi = (
 	app: Application,
