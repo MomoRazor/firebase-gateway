@@ -1,4 +1,4 @@
-import { IUserRepo, User } from '../data/UserRepo'
+import { IUserRepo, User } from '../data'
 import { Auth } from 'firebase-admin/lib/auth/auth'
 import { CreateRequest } from 'firebase-admin/lib/auth/auth-config'
 import { createHash } from 'crypto'
@@ -10,8 +10,8 @@ export interface IUserSvc {
 		byUid?: string
 	) => Promise<User>
 	deleteOne: (userId: string, byUid?: string) => Promise<void>
-	blockOne: (userId: string, byUid?: string) => Promise<void>
-	unblockOne: (userId: string, byUid?: string) => Promise<void>
+	blockOne: (userId: string, byUid?: string) => Promise<User>
+	unblockOne: (userId: string, byUid?: string) => Promise<User>
 }
 
 export const UserSvc = (userRepo: IUserRepo, firebaseAuth: Auth): IUserSvc => {
@@ -61,6 +61,10 @@ export const UserSvc = (userRepo: IUserRepo, firebaseAuth: Auth): IUserSvc => {
 				userInformation.password
 			)
 
+			if (!userData.password) {
+				//TODO send the generated Password by email
+			}
+
 			return aggregatedUserInformation
 		} catch (e) {
 			console.warn(e)
@@ -77,37 +81,30 @@ export const UserSvc = (userRepo: IUserRepo, firebaseAuth: Auth): IUserSvc => {
 			throw new Error(`UID is required!`)
 		}
 
-		let user = await userRepo.findOne({ uid })
+		let currentUser = await userRepo.findOne({ uid })
 
-		if (!user) {
+		if (!currentUser) {
 			throw new Error(`Could not find User with uid ${uid}`)
 		}
 
-		const firebaseUser = await firebaseAuth.updateUser(uid, userData)
+		await firebaseAuth.updateUser(uid, userData)
 
-		// TODO: Update if adding new user fields
-		if (userData.roleNames) {
-			user = await userRepo.findOneAndUpdate(
-				{ uid },
-				{
-					$set: {
-						roleNames: userData.roleNames,
-					},
-				},
-				{ new: true }
-			)
+		const fullData = {
+			...currentUser,
+			...userData,
 		}
 
-		if (!user) {
-			throw new Error(`Could not find User with uid ${uid}`)
-		}
+		await userRepo.validate(fullData)
 
-		const aggregatedUserInformation = {
-			...firebaseUser,
-			...user.toObject(),
-		}
+		const user = await userRepo.findOneAndUpdate(
+			{ uid },
+			{ $set: fullData },
+			{ new: true }
+		)
 
-		return aggregatedUserInformation
+		if (!user) throw new Error(`User ${uid} does not exist!`)
+
+		return user.toObject()
 	}
 
 	const blockOne = async (uid: string) => {
@@ -120,6 +117,20 @@ export const UserSvc = (userRepo: IUserRepo, firebaseAuth: Auth): IUserSvc => {
 		await firebaseAuth.updateUser(currentUser.uid, {
 			disabled: true,
 		})
+
+		const user = await userRepo.findOneAndUpdate(
+			{ uid },
+			{
+				$set: {
+					blocked: true,
+				},
+			},
+			{ new: true }
+		)
+
+		if (!user) throw new Error(`User ${uid} does not exist!`)
+
+		return user.toObject()
 	}
 
 	const unblockOne = async (uid: string) => {
@@ -132,6 +143,20 @@ export const UserSvc = (userRepo: IUserRepo, firebaseAuth: Auth): IUserSvc => {
 		await firebaseAuth.updateUser(currentUser.uid, {
 			disabled: false,
 		})
+
+		const user = await userRepo.findOneAndUpdate(
+			{ uid },
+			{
+				$set: {
+					blocked: false,
+				},
+			},
+			{ new: true }
+		)
+
+		if (!user) throw new Error(`User ${uid} does not exist!`)
+
+		return user.toObject()
 	}
 
 	const deleteOne = async (uid: string) => {

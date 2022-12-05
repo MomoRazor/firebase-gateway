@@ -1,5 +1,5 @@
 import { Application } from 'express'
-import { IRbacSvc } from '../svc/RbacSvc'
+import { IRbacSvc } from '../svc'
 
 export const RbacApi = (
 	app: Application,

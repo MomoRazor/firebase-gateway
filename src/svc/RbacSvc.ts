@@ -1,9 +1,6 @@
 import { firestore } from 'firebase-admin'
 import { Mache } from '../cache'
-import { IPageRepo } from '../data/PageRepo'
-import { IPermissionRepo } from '../data/PermissionRepo'
-import { IRoleRepo } from '../data/RoleRepo'
-import { IUserRepo, User } from '../data/UserRepo'
+import { IPageRepo, IPermissionRepo, IRoleRepo, IUserRepo, User } from '../data'
 import { LOCAL } from '../env'
 
 export interface IRbacSvc {

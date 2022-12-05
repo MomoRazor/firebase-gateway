@@ -1,5 +1,5 @@
 import { Application } from 'express'
-import { IAuthSvc } from '../svc/AuthSvc'
+import { IAuthSvc } from '../svc'
 
 export const AuthApi = (app: Application, authSvc: IAuthSvc) => {
 	app.use(`*`, async (req, res, next) => {
