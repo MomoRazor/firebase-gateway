@@ -4,7 +4,7 @@ import { IProxySvc } from '../svc'
 export const ProxyApi = (
 	app: Application,
 	proxySvc: IProxySvc,
-	prefix: string
+	prefix: string = ''
 ) => {
 	app.use(`${prefix}/:service`, async (req, res) => {
 		if (!res.locals.userData?.uid) {

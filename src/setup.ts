@@ -6,7 +6,6 @@ export const RBACSetup = async (
 	pageRepo: IPageRepo
 ) => {
 	// Permissions Setup ----------------------------------------------------------------------
-
 	try {
 		await permissionRepo.create({
 			name: `Super Permission`,

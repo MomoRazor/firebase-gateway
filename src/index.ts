@@ -35,8 +35,7 @@ const main = async () => {
 
 	const firestore = await admin.firestore()
 
-	const prefix = '/wapo'
-	const authServicePerfix = `${prefix}/auth`
+	const prefix = `/auth`
 
 	// Init repositories
 	const userRepo = await UserRepo(databaseConnection)
@@ -65,15 +64,15 @@ const main = async () => {
 	app.use(morgan('dev'))
 
 	// Init setup routes
-	SetupApi(app, roleRepo, pageRepo, permissionRepo, serviceRepo, prefix)
+	SetupApi(app, roleRepo, pageRepo, permissionRepo, serviceRepo)
 
 	// Init Auth and RBAC
 	AuthApi(app, authSvc)
 	RbacApi(app, rbacSvc, prefix)
 
 	// Init routes
-	UserApi(app, userSvc, authServicePerfix)
-	ProxyApi(app, proxySvc, prefix)
+	UserApi(app, userSvc, prefix)
+	ProxyApi(app, proxySvc)
 
 	// Start application
 	app.listen(PORT, () => {

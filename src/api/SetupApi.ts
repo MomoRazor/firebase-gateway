@@ -1,6 +1,6 @@
 import { Application } from 'express'
 import { IPageRepo, IPermissionRepo, IRoleRepo, IServiceRepo } from '../data'
-import { camSetup } from '../projectSpecifics'
+import { camSetup, mailSetup } from '../serviceSpecifics'
 import { RBACSetup } from '../setup'
 
 export const SetupApi = (
@@ -9,13 +9,13 @@ export const SetupApi = (
 	pageRepo: IPageRepo,
 	permissionRepo: IPermissionRepo,
 	serviceRepo: IServiceRepo,
-	prefix: string
+	prefix: string = ''
 ) => {
-	app.get(`${prefix}/rbac/setup`, async (_, res) => {
+	app.get(`${prefix}/auth/setup`, async (_, res) => {
 		try {
 			await RBACSetup(permissionRepo, roleRepo, pageRepo)
 
-			console.info('Setup Successful!')
+			console.info('RBAC Setup Successful!')
 
 			return res.status(200).json({
 				data: {},
@@ -34,7 +34,26 @@ export const SetupApi = (
 		try {
 			await camSetup(permissionRepo, roleRepo, pageRepo, serviceRepo)
 
-			console.info('Setup Successful!')
+			console.info('CAM Setup Successful!')
+
+			return res.status(200).json({
+				data: {},
+				errors: [],
+			})
+		} catch (e: any) {
+			console.error(e)
+			return res.status(500).json({
+				data: null,
+				errors: [e.message],
+			})
+		}
+	})
+
+	app.get(`${prefix}/mail/setup`, async (_, res) => {
+		try {
+			await mailSetup(permissionRepo, pageRepo, serviceRepo)
+
+			console.info('Mail Setup Successful!')
 
 			return res.status(200).json({
 				data: {},
