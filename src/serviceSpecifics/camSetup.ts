@@ -1,4 +1,7 @@
 import { IPageRepo, IPermissionRepo, IRoleRepo, IServiceRepo } from '../data'
+import { checkForOtherCoreService } from './config'
+
+export const camName = 'cam-youths'
 
 export const camSetup = async (
 	permissionRepo: IPermissionRepo,
@@ -6,23 +9,27 @@ export const camSetup = async (
 	pageRepo: IPageRepo,
 	serviceRepo: IServiceRepo
 ) => {
-	console.log(permissionRepo, roleRepo, pageRepo)
-	// Permissions Setup ----------------------------------------------------------------------
-
-	// Pages Setup --------------------------------------------------------------------------
-
-	// Role Setup -----------------------------------------------------------------------------
-
-	// Services Setup -----------------------------------------------------------------------------
-
 	//TODO change this url
-	const camUrl = 'https://api.fuelorder.enemed.com.mt'
+	const camUrl = ''
 
 	try {
-		await serviceRepo.create({
-			name: `cam`,
-			url: camUrl,
-			enabled: true,
-		})
+		await checkForOtherCoreService(camName, serviceRepo)
+
+		console.log(permissionRepo, pageRepo, roleRepo)
+		// Permissions Setup ----------------------------------------------------------------------
+
+		// Pages Setup --------------------------------------------------------------------------
+
+		// Role Setup -----------------------------------------------------------------------------
+
+		// Services Setup -----------------------------------------------------------------------------
+
+		try {
+			await serviceRepo.create({
+				name: camName,
+				url: camUrl,
+				enabled: true,
+			})
+		} catch (e) {}
 	} catch (e) {}
 }

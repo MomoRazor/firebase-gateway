@@ -1,5 +1,7 @@
 import { IPageRepo, IPermissionRepo, IRoleRepo } from './data'
 
+export const authName = 'auth'
+
 export const RBACSetup = async (
 	permissionRepo: IPermissionRepo,
 	roleRepo: IRoleRepo,

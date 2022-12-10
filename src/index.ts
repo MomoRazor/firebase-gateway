@@ -15,6 +15,8 @@ import {
 	PageRepo,
 } from './data'
 import { AuthSvc, RbacSvc, ProxySvc, UserSvc } from './svc'
+import { authName } from './setup'
+import { camName, mailName } from './serviceSpecifics'
 
 const main = async () => {
 	// Init firebase auth
@@ -35,7 +37,10 @@ const main = async () => {
 
 	const firestore = await admin.firestore()
 
-	const prefix = `/auth`
+	const generalPrefix = ''
+	const authPrefix = `/${authName}`
+	const mailPrefix = `/${mailName}`
+	const camPrefix = `/${camName}`
 
 	// Init repositories
 	const userRepo = await UserRepo(databaseConnection)
@@ -64,15 +69,24 @@ const main = async () => {
 	app.use(morgan('dev'))
 
 	// Init setup routes
-	SetupApi(app, roleRepo, pageRepo, permissionRepo, serviceRepo)
+	SetupApi(
+		app,
+		roleRepo,
+		pageRepo,
+		permissionRepo,
+		serviceRepo,
+		authPrefix,
+		camPrefix,
+		mailPrefix
+	)
 
 	// Init Auth and RBAC
 	AuthApi(app, authSvc)
-	RbacApi(app, rbacSvc, prefix)
+	RbacApi(app, rbacSvc, '*')
 
 	// Init routes
-	UserApi(app, userSvc, prefix)
-	ProxyApi(app, proxySvc)
+	UserApi(app, userSvc, authPrefix)
+	ProxyApi(app, proxySvc, generalPrefix)
 
 	// Start application
 	app.listen(PORT, () => {

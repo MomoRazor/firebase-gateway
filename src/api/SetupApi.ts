@@ -9,9 +9,11 @@ export const SetupApi = (
 	pageRepo: IPageRepo,
 	permissionRepo: IPermissionRepo,
 	serviceRepo: IServiceRepo,
-	prefix: string = ''
+	authPrefix: string,
+	camPrefix: string,
+	mailPrefix: string
 ) => {
-	app.get(`${prefix}/auth/setup`, async (_, res) => {
+	app.get(`${authPrefix}/setup`, async (_, res) => {
 		try {
 			await RBACSetup(permissionRepo, roleRepo, pageRepo)
 
@@ -30,7 +32,7 @@ export const SetupApi = (
 		}
 	})
 
-	app.get(`${prefix}/cam/setup`, async (_, res) => {
+	app.get(`${camPrefix}/setup`, async (_, res) => {
 		try {
 			await camSetup(permissionRepo, roleRepo, pageRepo, serviceRepo)
 
@@ -49,9 +51,9 @@ export const SetupApi = (
 		}
 	})
 
-	app.get(`${prefix}/mail/setup`, async (_, res) => {
+	app.get(`${mailPrefix}/setup`, async (_, res) => {
 		try {
-			await mailSetup(permissionRepo, pageRepo, serviceRepo)
+			await mailSetup(permissionRepo, roleRepo, pageRepo, serviceRepo)
 
 			console.info('Mail Setup Successful!')
 

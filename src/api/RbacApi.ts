@@ -4,7 +4,7 @@ import { IRbacSvc } from '../svc'
 export const RbacApi = (
 	app: Application,
 	rbacSvc: IRbacSvc,
-	prefix: string = '*'
+	prefix: string
 ) => {
 	app.use(prefix, async (req, res, next) => {
 		//TODO remove skipping RBAC
