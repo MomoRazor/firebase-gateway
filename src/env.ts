@@ -29,12 +29,14 @@ export const PORT = process.env.PORT
 
 export const LOCAL = process.env.LOCAL === 'true' ? true : false
 
-if (!process.env.JWT_SECRET)
-	throw new Error(`Missing environment variable JWT_SECRET!`)
+if (!process.env.RBAC_SECRET)
+	throw new Error(`Missing environment variable RBAC_SECRET!`)
 
-export const JWT_SECRET = process.env.JWT_SECRET
+export const RBAC_SECRET = process.env.RBAC_SECRET
 
 if (!process.env.PROJECT_ID)
 	throw new Error(`Missing environment variable PROJECT_ID!`)
 
 export const PROJECT_ID = process.env.PROJECT_ID
+
+export const MAIL_SERVICE_URL = process.env.MAIL_SERVICE_URL

@@ -2,6 +2,7 @@ import { AutocompleteFilter, IUserRepo, PaginationFilter, User } from '../data'
 import { Auth } from 'firebase-admin/lib/auth/auth'
 import { CreateRequest } from 'firebase-admin/lib/auth/auth-config'
 import { createHash } from 'crypto'
+import { MAIL_SERVICE_URL } from '../env'
 
 export interface IUserSvc {
 	getTable: (
@@ -70,6 +71,12 @@ export const UserSvc = (userRepo: IUserRepo, firebaseAuth: Auth): IUserSvc => {
 	}
 
 	const create = async (userData: User & CreateRequest) => {
+		if (!MAIL_SERVICE_URL && !userData.password) {
+			throw new Error(
+				'No Mail Service set, so password cannot be generated and sent to user'
+			)
+		}
+
 		const userInformation = {
 			...userData,
 			password:
@@ -107,13 +114,6 @@ export const UserSvc = (userRepo: IUserRepo, firebaseAuth: Auth): IUserSvc => {
 				...firebaseUser,
 				...user.toObject(),
 			}
-
-			// TODO: STRICTLY REMOVE BEFORE GOING TO PRODUCTION
-			console.log(
-				new Date().toISOString(),
-				userInformation.uid,
-				userInformation.password
-			)
 
 			if (!userData.password) {
 				//TODO send the generated Password by email
