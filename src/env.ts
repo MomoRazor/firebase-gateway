@@ -40,3 +40,4 @@ if (!process.env.PROJECT_ID)
 export const PROJECT_ID = process.env.PROJECT_ID
 
 export const MAIL_SERVICE_URL = process.env.MAIL_SERVICE_URL
+export const CAM_SERVICE_URL = process.env.CAM_SERVICE_URL

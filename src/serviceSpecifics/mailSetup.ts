@@ -1,4 +1,5 @@
 import { IPageRepo, IPermissionRepo, IRoleRepo, IServiceRepo } from '../data'
+import { MAIL_SERVICE_URL } from '../env'
 
 export const mailName = 'mail'
 
@@ -8,6 +9,10 @@ export const mailSetup = async (
 	pageRepo: IPageRepo,
 	serviceRepo: IServiceRepo
 ) => {
+	if (!MAIL_SERVICE_URL) {
+		throw new Error('No MAIL_SERVICE_URL environment variable set')
+	}
+
 	console.log(permissionRepo, roleRepo, pageRepo)
 	// Permissions Setup ----------------------------------------------------------------------
 
@@ -17,13 +22,10 @@ export const mailSetup = async (
 
 	// Services Setup -----------------------------------------------------------------------------
 
-	//TODO change this url
-	const mailUrl = ''
-
 	try {
 		await serviceRepo.create({
 			name: mailName,
-			url: mailUrl,
+			url: MAIL_SERVICE_URL,
 			enabled: true,
 		})
 	} catch (e) {}
