@@ -9,7 +9,8 @@ export interface IUserSvc {
 		pagination: PaginationFilter
 	) => Promise<{ data: User[]; total: number }>
 	getAutocomplete: (info: AutocompleteFilter) => Promise<{ data: User[] }>
-	getById: (communityId: string) => Promise<User>
+	getById: (userId: string) => Promise<User>
+	getByUid: (uid: string) => Promise<User>
 	create: (userData: User & CreateRequest, byUid?: string) => Promise<User>
 	update: (
 		userData: Partial<User & CreateRequest>,
@@ -62,6 +63,20 @@ export const UserSvc = (userRepo: IUserRepo, firebaseAuth: Auth): IUserSvc => {
 
 	const getById = async (id: string) => {
 		const user = await userRepo.findById(id).lean()
+
+		if (!user) {
+			throw new Error('Could not find User')
+		}
+
+		return user
+	}
+
+	const getByUid = async (uid: string) => {
+		const user = await userRepo
+			.findOne({
+				uid,
+			})
+			.lean()
 
 		if (!user) {
 			throw new Error('Could not find User')
@@ -229,6 +244,7 @@ export const UserSvc = (userRepo: IUserRepo, firebaseAuth: Auth): IUserSvc => {
 		getTable,
 		getAutocomplete,
 		getById,
+		getByUid,
 		deleteOne,
 		update,
 		create,

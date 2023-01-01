@@ -8,16 +8,21 @@ export const UserApi = (
 ) => {
 	app.post(`${prefix}/get/users`, async (req, res) => {
 		try {
-			const { id } = req.body
+			const { id, uid } = req.body
 
-			if (!id) {
+			if (!id && !uid) {
 				return res.status(400).json({
 					data: null,
-					errors: ['Missing Id!'],
+					errors: ['Missing Id and Uid!'],
 				})
 			}
+			let user
 
-			const user = await userService.getById(id)
+			if (id) {
+				user = await userService.getById(id)
+			} else if (uid) {
+				user = await userService.getByUid(uid)
+			}
 
 			return res.status(200).json({
 				data: user,
