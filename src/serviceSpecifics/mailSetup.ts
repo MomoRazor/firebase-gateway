@@ -7,13 +7,14 @@ export const mailSetup = async (
 	permissionRepo: IPermissionRepo,
 	roleRepo: IRoleRepo,
 	pageRepo: IPageRepo,
-	serviceRepo: IServiceRepo
+	serviceRepo: IServiceRepo,
+	prefix: string
 ) => {
 	if (!MAIL_SERVICE_URL) {
 		throw new Error('No MAIL_SERVICE_URL environment variable set')
 	}
 
-	console.log(permissionRepo, roleRepo, pageRepo)
+	console.log(permissionRepo, roleRepo, pageRepo, prefix)
 	// Permissions Setup ----------------------------------------------------------------------
 
 	// Pages Setup -----------------------------------------------------------------------------

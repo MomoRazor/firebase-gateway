@@ -15,7 +15,7 @@ export const SetupApi = (
 ) => {
 	app.get(`${authPrefix}/setup`, async (_, res) => {
 		try {
-			await RBACSetup(permissionRepo, roleRepo, pageRepo)
+			await RBACSetup(permissionRepo, roleRepo, pageRepo, authPrefix)
 
 			console.info('RBAC Setup Successful!')
 
@@ -34,7 +34,13 @@ export const SetupApi = (
 
 	app.get(`${camPrefix}/setup`, async (_, res) => {
 		try {
-			await camSetup(permissionRepo, roleRepo, pageRepo, serviceRepo)
+			await camSetup(
+				permissionRepo,
+				roleRepo,
+				pageRepo,
+				serviceRepo,
+				camPrefix
+			)
 
 			console.info('CAM Setup Successful!')
 
@@ -53,7 +59,13 @@ export const SetupApi = (
 
 	app.get(`${mailPrefix}/setup`, async (_, res) => {
 		try {
-			await mailSetup(permissionRepo, roleRepo, pageRepo, serviceRepo)
+			await mailSetup(
+				permissionRepo,
+				roleRepo,
+				pageRepo,
+				serviceRepo,
+				mailPrefix
+			)
 
 			console.info('Mail Setup Successful!')
 

@@ -6,7 +6,7 @@ import mongoose from 'mongoose'
 import { Mache } from './cache'
 import Axios from 'axios'
 import cors from 'cors'
-import { SetupApi, AuthApi, RbacApi, UserApi, ProxyApi } from './api'
+import { SetupApi, AuthApi, RbacApi, UserApi, ProxyApi, RoleApi } from './api'
 import {
 	UserRepo,
 	PermissionRepo,
@@ -14,7 +14,7 @@ import {
 	ServiceRepo,
 	PageRepo,
 } from './data'
-import { AuthSvc, RbacSvc, ProxySvc, UserSvc } from './svc'
+import { AuthSvc, RbacSvc, ProxySvc, UserSvc, RoleSvc } from './svc'
 import { authName } from './setup'
 import { camName, mailName } from './serviceSpecifics'
 
@@ -60,7 +60,8 @@ const main = async () => {
 		cache
 	)
 	const proxySvc = ProxySvc(serviceRepo, axios, cache)
-	const userSvc = UserSvc(userRepo, firebaseAuthentication)
+	const userSvc = UserSvc(userRepo, firebaseAuthentication, axios)
+	const roleSvc = RoleSvc(roleRepo)
 
 	// Init web server
 	const app = express()
@@ -86,6 +87,7 @@ const main = async () => {
 
 	// Init routes
 	UserApi(app, userSvc, authPrefix)
+	RoleApi(app, roleSvc, authPrefix)
 	ProxyApi(app, proxySvc, generalPrefix)
 
 	// Start application

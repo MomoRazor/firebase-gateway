@@ -2,7 +2,9 @@ import { AutocompleteFilter, IUserRepo, PaginationFilter, User } from '../data'
 import { Auth } from 'firebase-admin/lib/auth/auth'
 import { CreateRequest } from 'firebase-admin/lib/auth/auth-config'
 import { createHash } from 'crypto'
-import { MAIL_SERVICE_URL } from '../env'
+import { MAIL_SERVICE_URL, RBAC_SECRET } from '../env'
+import { AxiosInstance, AxiosRequestConfig } from 'axios'
+import { sign } from 'jsonwebtoken'
 
 export interface IUserSvc {
 	getTable: (
@@ -21,7 +23,11 @@ export interface IUserSvc {
 	unblockOne: (userId: string, byUid?: string) => Promise<User>
 }
 
-export const UserSvc = (userRepo: IUserRepo, firebaseAuth: Auth): IUserSvc => {
+export const UserSvc = (
+	userRepo: IUserRepo,
+	firebaseAuth: Auth,
+	axios: AxiosInstance
+): IUserSvc => {
 	const getTable = async (pagination: PaginationFilter) => {
 		const fullFilter = {
 			...pagination.filter,
@@ -85,7 +91,7 @@ export const UserSvc = (userRepo: IUserRepo, firebaseAuth: Auth): IUserSvc => {
 		return user
 	}
 
-	const create = async (userData: User & CreateRequest) => {
+	const create = async (userData: User & CreateRequest, byUid?: string) => {
 		if (!MAIL_SERVICE_URL && !userData.password) {
 			throw new Error(
 				'No Mail Service set, so password cannot be generated and sent to user'
@@ -131,7 +137,26 @@ export const UserSvc = (userRepo: IUserRepo, firebaseAuth: Auth): IUserSvc => {
 			}
 
 			if (!userData.password) {
-				//TODO send the generated Password by email
+				let currentUser = await userRepo.findOne({ uid: byUid }).lean()
+
+				if (!currentUser) {
+					throw new Error('Could not find Current User in system')
+				}
+
+				let request: AxiosRequestConfig = {
+					method: 'POST',
+					url: `${MAIL_SERVICE_URL}/mailjet/send`,
+					headers: {
+						'x-token': sign(currentUser, RBAC_SECRET),
+					},
+					data: {},
+				}
+
+				try {
+					await axios.request(request)
+				} catch (e) {
+					console.error('Failed to send email - ' + JSON.stringify(e))
+				}
 			}
 
 			return aggregatedUserInformation

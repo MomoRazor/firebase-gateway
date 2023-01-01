@@ -8,7 +8,8 @@ export const camSetup = async (
 	permissionRepo: IPermissionRepo,
 	roleRepo: IRoleRepo,
 	pageRepo: IPageRepo,
-	serviceRepo: IServiceRepo
+	serviceRepo: IServiceRepo,
+	prefix: string
 ) => {
 	if (!CAM_SERVICE_URL) {
 		throw new Error('No CAM_SERVICE_URL environment variable set')
@@ -17,12 +18,28 @@ export const camSetup = async (
 	try {
 		await checkForOtherCoreService(camName, serviceRepo)
 
-		console.log(permissionRepo, pageRepo, roleRepo)
+		console.log(permissionRepo, pageRepo, prefix)
 		// Permissions Setup ----------------------------------------------------------------------
 
 		// Pages Setup --------------------------------------------------------------------------
 
 		// Role Setup -----------------------------------------------------------------------------
+
+		try {
+			await roleRepo.create({
+				name: 'Administrator',
+				permissionsNames: [],
+				pageNames: [],
+			})
+		} catch (e) {}
+
+		try {
+			await roleRepo.create({
+				name: 'Members',
+				permissionsNames: [],
+				pageNames: [],
+			})
+		} catch (e) {}
 
 		// Services Setup -----------------------------------------------------------------------------
 
