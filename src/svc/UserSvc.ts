@@ -1,4 +1,4 @@
-import { AutocompleteFilter, IUserRepo, PaginationFilter, User } from '../data'
+import { IUserRepo, User } from '../data'
 import { Auth } from 'firebase-admin/lib/auth/auth'
 import { CreateRequest } from 'firebase-admin/lib/auth/auth-config'
 import { createHash } from 'crypto'
@@ -7,12 +7,6 @@ import { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { sign } from 'jsonwebtoken'
 
 export interface IUserSvc {
-	getTable: (
-		pagination: PaginationFilter
-	) => Promise<{ data: User[]; total: number }>
-	getAutocomplete: (info: AutocompleteFilter) => Promise<{ data: User[] }>
-	getById: (userId: string) => Promise<User>
-	getByUid: (uid: string) => Promise<User>
 	create: (userData: User & CreateRequest, byUid?: string) => Promise<User>
 	update: (
 		userData: Partial<User & CreateRequest>,
@@ -28,69 +22,6 @@ export const UserSvc = (
 	firebaseAuth: Auth,
 	axios: AxiosInstance
 ): IUserSvc => {
-	const getTable = async (pagination: PaginationFilter) => {
-		const fullFilter = {
-			...pagination.filter,
-			system: false,
-		}
-
-		const data = await userRepo
-			.find(fullFilter, pagination.projection)
-			.sort(pagination.sort)
-			.skip((pagination.page - 1) * pagination.limit)
-			.limit(pagination.limit)
-			.lean()
-
-		const total = await userRepo.countDocuments(fullFilter)
-
-		return {
-			data,
-			total,
-		}
-	}
-
-	const getAutocomplete = async (info: AutocompleteFilter) => {
-		const { filter, search, limit } = info
-
-		const autoFilter = {
-			...filter,
-			displayName: {
-				$regex: search || '',
-				$options: 'ig',
-			},
-		}
-
-		const data = await userRepo.find(autoFilter).limit(limit).lean()
-
-		return {
-			data,
-		}
-	}
-
-	const getById = async (id: string) => {
-		const user = await userRepo.findById(id).lean()
-
-		if (!user) {
-			throw new Error('Could not find User')
-		}
-
-		return user
-	}
-
-	const getByUid = async (uid: string) => {
-		const user = await userRepo
-			.findOne({
-				uid,
-			})
-			.lean()
-
-		if (!user) {
-			throw new Error('Could not find User')
-		}
-
-		return user
-	}
-
 	const create = async (userData: User & CreateRequest, byUid?: string) => {
 		if (!MAIL_SERVICE_URL && !userData.password) {
 			throw new Error(
@@ -266,10 +197,6 @@ export const UserSvc = (
 	}
 
 	return {
-		getTable,
-		getAutocomplete,
-		getById,
-		getByUid,
 		deleteOne,
 		update,
 		create,
