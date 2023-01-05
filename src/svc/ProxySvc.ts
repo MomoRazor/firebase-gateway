@@ -94,6 +94,8 @@ export const ProxySvc = (
 			request.data = body
 		}
 
+		console.log(`endpoint:`, fullUrl)
+
 		const result = await axios.request(request)
 
 		return result

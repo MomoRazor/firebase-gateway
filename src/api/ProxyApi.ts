@@ -25,7 +25,6 @@ export const ProxyApi = (
 		console.log(`body:`, body)
 		console.log(`user data:`, userData)
 		console.log(`service:`, service)
-		console.log(`endpoint:`, endpoint)
 
 		try {
 			const result = await proxySvc.proxyRequest(
