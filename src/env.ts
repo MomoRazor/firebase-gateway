@@ -34,10 +34,5 @@ if (!process.env.RBAC_SECRET)
 
 export const RBAC_SECRET = process.env.RBAC_SECRET
 
-if (!process.env.PROJECT_ID)
-	throw new Error(`Missing environment variable PROJECT_ID!`)
-
-export const PROJECT_ID = process.env.PROJECT_ID
-
 export const MAIL_SERVICE_URL = process.env.MAIL_SERVICE_URL
 export const CAM_SERVICE_URL = process.env.CAM_SERVICE_URL
