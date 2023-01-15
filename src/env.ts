@@ -29,10 +29,19 @@ export const PORT = process.env.PORT
 
 export const LOCAL = process.env.LOCAL === 'true' ? true : false
 
+if (!process.env.APP_ENV) {
+	throw new Error('Missing environment variable APP_ENV!')
+}
+export const APP_ENV = process.env.APP_ENV
+
 if (!process.env.RBAC_SECRET)
 	throw new Error(`Missing environment variable RBAC_SECRET!`)
 
 export const RBAC_SECRET = process.env.RBAC_SECRET
 
 export const MAIL_SERVICE_URL = process.env.MAIL_SERVICE_URL
+export const MAIL_PROJECT_NAME = process.env.MAIL_PROJECT_NAME
+export const MAIL_PROJECT_LINK = process.env.MAIL_PROJECT_LINK
+export const MAIL_FROM_EMAIL = process.env.MAIL_FROM_EMAIL
+
 export const CAM_SERVICE_URL = process.env.CAM_SERVICE_URL

@@ -2,9 +2,16 @@ import { IUserRepo, User } from '../data'
 import { Auth } from 'firebase-admin/lib/auth/auth'
 import { CreateRequest } from 'firebase-admin/lib/auth/auth-config'
 import { createHash } from 'crypto'
-import { MAIL_SERVICE_URL, RBAC_SECRET } from '../env'
+import {
+	MAIL_FROM_EMAIL,
+	MAIL_PROJECT_LINK,
+	MAIL_PROJECT_NAME,
+	MAIL_SERVICE_URL,
+	RBAC_SECRET,
+} from '../env'
 import { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { sign } from 'jsonwebtoken'
+import { generatedPasswordEmail } from '../emailTemplates'
 
 export interface IUserSvc {
 	create: (userData: User & CreateRequest, byUid?: string) => Promise<User>
@@ -22,10 +29,19 @@ export const UserSvc = (
 	firebaseAuth: Auth,
 	axios: AxiosInstance
 ): IUserSvc => {
+	const checkMailEnvs = () => {
+		return (
+			MAIL_SERVICE_URL &&
+			MAIL_FROM_EMAIL &&
+			MAIL_PROJECT_LINK &&
+			MAIL_PROJECT_NAME
+		)
+	}
+
 	const create = async (userData: User & CreateRequest, byUid?: string) => {
-		if (!MAIL_SERVICE_URL && !userData.password) {
+		if (!checkMailEnvs() && !userData.password) {
 			throw new Error(
-				'No Mail Service set, so password cannot be generated and sent to user'
+				'One or more of the Mail Envirinmental Variables are not set, so password cannot be generated and sent to user'
 			)
 		}
 
@@ -80,7 +96,16 @@ export const UserSvc = (
 					headers: {
 						'x-token': sign(currentUser, RBAC_SECRET),
 					},
-					data: {},
+					data: {
+						from: MAIL_FROM_EMAIL,
+						to: currentUser.email,
+						subject: `Welcome to ${MAIL_PROJECT_NAME}`,
+						html: generatedPasswordEmail({
+							email: currentUser.email,
+							fullName: currentUser.displayName,
+							password: userInformation.password,
+						}),
+					},
 				}
 
 				try {
