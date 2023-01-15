@@ -99,8 +99,14 @@ export const UserSvc = (
 						'x-token': sign(currentUser, RBAC_SECRET),
 					},
 					data: {
-						from: MAIL_FROM_EMAIL,
-						to: currentUser.email,
+						from: {
+							email: MAIL_FROM_EMAIL,
+							name: MAIL_PROJECT_NAME,
+						},
+						to: {
+							email: currentUser.email,
+							name: currentUser.displayName,
+						},
 						subject: `Welcome to ${MAIL_PROJECT_NAME}`,
 						html: generatedPasswordEmail({
 							email: currentUser.email,
