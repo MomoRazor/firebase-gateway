@@ -10,10 +10,7 @@ export const UserApi = (
 		try {
 			const { body } = req
 
-			const newUser = await userService.create(
-				body,
-				res.locals.userData?.uid
-			)
+			const newUser = await userService.create(body)
 
 			return res.status(200).json({
 				data: newUser,

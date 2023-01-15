@@ -14,7 +14,7 @@ import { sign } from 'jsonwebtoken'
 import { generatedPasswordEmail } from '../emailTemplates'
 
 export interface IUserSvc {
-	create: (userData: User & CreateRequest, byUid?: string) => Promise<User>
+	create: (userData: User & CreateRequest) => Promise<User>
 	update: (
 		userData: Partial<User & CreateRequest>,
 		byUid?: string
@@ -38,7 +38,7 @@ export const UserSvc = (
 		)
 	}
 
-	const create = async (userData: User & CreateRequest, byUid?: string) => {
+	const create = async (userData: User & CreateRequest) => {
 		if (!checkMailEnvs() && !userData.password) {
 			throw new Error(
 				'One or more of the Mail Envirinmental Variables are not set, so password cannot be generated and sent to user'
@@ -84,7 +84,9 @@ export const UserSvc = (
 			}
 
 			if (!userData.password) {
-				let currentUser = await userRepo.findOne({ uid: byUid }).lean()
+				let currentUser = await userRepo
+					.findOne({ uid: firebaseUser.uid })
+					.lean()
 
 				if (!currentUser) {
 					throw new Error('Could not find Current User in system')
