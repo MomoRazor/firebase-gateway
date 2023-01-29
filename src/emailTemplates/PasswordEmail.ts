@@ -3,6 +3,8 @@ import {
 	MAIL_FROM_EMAIL,
 	MAIL_PROJECT_LINK,
 	MAIL_PROJECT_NAME,
+	MAIL_SIGNOFF,
+	MAIL_SUPPORT_EMAIL,
 } from '../env'
 
 export interface IPasswordEmail {
@@ -72,7 +74,7 @@ export const generatedPasswordEmail = (props: IPasswordEmail) => {
                                     Dear ${props.fullName},
                                     <br />
                                     <br />
-                                    You have been given access to <a href="${MAIL_PROJECT_LINK}">${MAIL_PROJECT_NAME}</a>.You may use the following credentials to log in.
+                                    You have been given access to <a href="${MAIL_PROJECT_LINK}">${MAIL_PROJECT_NAME}</a>. You may use the following credentials to log in.
                                     <br />
                                     <br />
                                     Credentials:
@@ -82,15 +84,23 @@ export const generatedPasswordEmail = (props: IPasswordEmail) => {
                                         <li>Password: ${props.password}</li>
                                     </ul>
                                     <br />
-                                    We highly suggest you change your password once you log in, to further secure your access to the ${MAIL_PROJECT_NAME}.
+                                    We highly suggest you change your password once you log in, to further secure your access to <a href="${MAIL_PROJECT_LINK}">${MAIL_PROJECT_NAME}</a>.
                                     <br />
                                     <br />
                                     <br />
-                                    If you encounter any issues while accesing this system, please feel free to contact the us through ${MAIL_FROM_EMAIL}.
+                                    If you encounter any issues while accesing this system, please feel free to contact the us through ${
+										MAIL_SUPPORT_EMAIL
+											? MAIL_SUPPORT_EMAIL
+											: MAIL_FROM_EMAIL
+									}}.
                                     <br /><br /><br />
                                     Regards,
                                     <br /><br />
-                                    The ${MAIL_PROJECT_NAME} Team
+                                    ${
+										MAIL_SIGNOFF
+											? MAIL_SIGNOFF
+											: `The ${MAIL_PROJECT_NAME} Team`
+									}
                                 </div>
                             </td>
                         </tr>

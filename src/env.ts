@@ -43,5 +43,7 @@ export const MAIL_SERVICE_URL = process.env.MAIL_SERVICE_URL
 export const MAIL_PROJECT_NAME = process.env.MAIL_PROJECT_NAME
 export const MAIL_PROJECT_LINK = process.env.MAIL_PROJECT_LINK
 export const MAIL_FROM_EMAIL = process.env.MAIL_FROM_EMAIL
+export const MAIL_SUPPORT_EMAIL = process.env.MAIL_SUPPORT_EMAIL
+export const MAIL_SIGNOFF = process.env.MAIL_SIGNOFF
 
 export const CAM_SERVICE_URL = process.env.CAM_SERVICE_URL
