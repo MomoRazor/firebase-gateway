@@ -208,9 +208,54 @@ export const camSetup = async (
 
 		try {
 			await pageRepo.create({
+				name: 'Super Portal',
+				domain: portal,
+				endpoint: '*',
+				permissionNames: ['Super Permission'],
+			})
+		} catch (e) {}
+
+		try {
+			await pageRepo.create({
 				name: 'Profile',
 				domain: portal,
 				endpoint: '/profile',
+			})
+		} catch (e) {}
+
+		try {
+			await pageRepo.create({
+				name: 'User List',
+				domain: portal,
+				endpoint: '/users',
+				permissionNames: ['Get Users Table'],
+			})
+		} catch (e) {}
+
+		try {
+			await pageRepo.create({
+				name: 'User View',
+				domain: portal,
+				endpoint: '/users/:id',
+				permissionNames: ['Get User'],
+			})
+		} catch (e) {}
+
+		try {
+			await pageRepo.create({
+				name: 'Team List',
+				domain: portal,
+				endpoint: '/teams',
+				permissionNames: ['Get Teams Table'],
+			})
+		} catch (e) {}
+
+		try {
+			await pageRepo.create({
+				name: 'Team View',
+				domain: portal,
+				endpoint: '/teams/:id',
+				permissionNames: ['Get Team'],
 			})
 		} catch (e) {}
 
@@ -219,15 +264,14 @@ export const camSetup = async (
 		try {
 			await roleRepo.create({
 				name: 'Administrator',
-				permissionsNames: ['Login'],
-				pageNames: [],
+				pageNames: ['Super Portal'],
 			})
 		} catch (e) {}
 
 		try {
 			await roleRepo.create({
 				name: 'Members',
-				permissionsNames: ['Login'],
+				//TODO add this
 				pageNames: [],
 			})
 		} catch (e) {}
