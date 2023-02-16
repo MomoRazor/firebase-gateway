@@ -16,7 +16,7 @@ import {
 } from './data'
 import { AuthSvc, RbacSvc, ProxySvc, UserSvc, RoleSvc } from './svc'
 import { authName } from './setup'
-import { camName, mailName } from './serviceSpecifics'
+import { camName, googleGroupName, mailName } from './serviceSpecifics'
 
 const main = async () => {
 	// Init firebase auth
@@ -41,6 +41,7 @@ const main = async () => {
 	const authPrefix = `/${authName}`
 	const mailPrefix = `/${mailName}`
 	const camPrefix = `/${camName}`
+	const googleGroupPrefix = `/${googleGroupName}`
 
 	// Init repositories
 	const userRepo = await UserRepo(databaseConnection)
@@ -78,7 +79,8 @@ const main = async () => {
 		serviceRepo,
 		authPrefix,
 		camPrefix,
-		mailPrefix
+		mailPrefix,
+		googleGroupPrefix
 	)
 
 	// Init Auth and RBAC

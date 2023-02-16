@@ -2,6 +2,7 @@ import { Application } from 'express'
 import { IPageRepo, IPermissionRepo, IRoleRepo, IServiceRepo } from '../data'
 import { camSetup, mailSetup } from '../serviceSpecifics'
 import { RBACSetup } from '../setup'
+import { googleGroupSetup } from '../serviceSpecifics/googleGroupSetup'
 
 export const SetupApi = (
 	app: Application,
@@ -11,7 +12,8 @@ export const SetupApi = (
 	serviceRepo: IServiceRepo,
 	authPrefix: string,
 	camPrefix: string,
-	mailPrefix: string
+	mailPrefix: string,
+	googleGroupPrefix: string
 ) => {
 	app.get(`${authPrefix}/setup`, async (_, res) => {
 		try {
@@ -59,15 +61,28 @@ export const SetupApi = (
 
 	app.get(`${mailPrefix}/setup`, async (_, res) => {
 		try {
-			await mailSetup(
-				permissionRepo,
-				roleRepo,
-				pageRepo,
-				serviceRepo,
-				mailPrefix
-			)
+			await mailSetup(serviceRepo)
 
 			console.info('Mail Setup Successful!')
+
+			return res.status(200).json({
+				data: {},
+				errors: [],
+			})
+		} catch (e: any) {
+			console.error(e)
+			return res.status(500).json({
+				data: null,
+				errors: [e.message],
+			})
+		}
+	})
+
+	app.get(`${googleGroupPrefix}/setup`, async (_, res) => {
+		try {
+			await googleGroupSetup(serviceRepo)
+
+			console.info('Google Group Setup Successful!')
 
 			return res.status(200).json({
 				data: {},

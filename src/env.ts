@@ -47,3 +47,4 @@ export const MAIL_SUPPORT_EMAIL = process.env.MAIL_SUPPORT_EMAIL
 export const MAIL_SIGNOFF = process.env.MAIL_SIGNOFF
 
 export const CAM_SERVICE_URL = process.env.CAM_SERVICE_URL
+export const GOOGLE_GROUP_SERVICE_URL = process.env.GOOGLE_GROUP_SERVICE_URL
