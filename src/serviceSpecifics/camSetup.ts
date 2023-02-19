@@ -336,6 +336,7 @@ export const camSetup = async (
 		try {
 			await roleRepo.create({
 				name: 'Administrator',
+				permissionNames: ['Login'],
 				pageNames: ['Super Portal'],
 			})
 		} catch (e) {}
@@ -343,6 +344,7 @@ export const camSetup = async (
 		try {
 			await roleRepo.create({
 				name: 'Member',
+				permissionNames: ['Login'],
 				pageNames: [
 					'Profile',
 					'My Teams',
