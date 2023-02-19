@@ -203,7 +203,7 @@ export const camSetup = async (
 
 		const portal =
 			APP_ENV === 'production'
-				? ''
+				? 'https://cam-portal.onrender.com'
 				: 'https://cam-staging-portal.onrender.com'
 
 		try {
@@ -228,7 +228,7 @@ export const camSetup = async (
 				name: 'User List',
 				domain: portal,
 				endpoint: '/users',
-				permissionNames: ['Get Users Table'],
+				permissionNames: ['Get User Table'],
 			})
 		} catch (e) {}
 
@@ -246,7 +246,7 @@ export const camSetup = async (
 				name: 'Team List',
 				domain: portal,
 				endpoint: '/teams',
-				permissionNames: ['Get Teams Table'],
+				permissionNames: ['Get Team Table'],
 			})
 		} catch (e) {}
 
@@ -255,7 +255,79 @@ export const camSetup = async (
 				name: 'Team View',
 				domain: portal,
 				endpoint: '/teams/:id',
-				permissionNames: ['Get Team'],
+				permissionNames: ['Get Team', 'Get User Table'],
+			})
+		} catch (e) {}
+
+		try {
+			await pageRepo.create({
+				name: 'Community View',
+				domain: portal,
+				endpoint: '/communities/:id',
+				permissionNames: ['Get Community', 'Get User Table'],
+			})
+		} catch (e) {}
+
+		try {
+			await pageRepo.create({
+				name: 'Community List',
+				domain: portal,
+				endpoint: '/communities',
+				permissionNames: ['Get Community Table'],
+			})
+		} catch (e) {}
+
+		try {
+			await pageRepo.create({
+				name: 'My Teams',
+				domain: portal,
+				endpoint: '/my-teams',
+				permissionNames: ['Get Team Table'],
+			})
+		} catch (e) {}
+
+		try {
+			await pageRepo.create({
+				name: 'My Team View',
+				domain: portal,
+				endpoint: '/my-teams/:id',
+				permissionNames: ['Get Team', 'Get User Table'],
+			})
+		} catch (e) {}
+
+		try {
+			await pageRepo.create({
+				name: 'My Communities',
+				domain: portal,
+				endpoint: '/my-communities',
+				permissionNames: ['Get Community Table'],
+			})
+		} catch (e) {}
+
+		try {
+			await pageRepo.create({
+				name: 'My Community View',
+				domain: portal,
+				endpoint: '/my-communities/:id',
+				permissionNames: ['Get Community', 'Get User Table'],
+			})
+		} catch (e) {}
+
+		try {
+			await pageRepo.create({
+				name: 'Guiding Communities',
+				domain: portal,
+				endpoint: '/guide-communities',
+				permissionNames: ['Get Community Table'],
+			})
+		} catch (e) {}
+
+		try {
+			await pageRepo.create({
+				name: 'Guiding Community View',
+				domain: portal,
+				endpoint: '/guide-communities/:id',
+				permissionNames: ['Get Community', 'Get User Table'],
 			})
 		} catch (e) {}
 
@@ -270,9 +342,16 @@ export const camSetup = async (
 
 		try {
 			await roleRepo.create({
-				name: 'Members',
-				//TODO add this
-				pageNames: [],
+				name: 'Member',
+				pageNames: [
+					'Profile',
+					'My Teams',
+					'My Team View',
+					'My Communities',
+					'My Community View',
+					'Guiding Communities',
+					'Guiding Community View',
+				],
 			})
 		} catch (e) {}
 
